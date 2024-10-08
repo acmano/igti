@@ -1,9 +1,9 @@
 import express from "express";
-import {promises as fs} from "fs";
+import { promises as fs } from "fs";
 
 const filename = "car-list.json";
 const router = express.Router();
-const {readFile, writeFile} = fs;
+const { readFile, writeFile } = fs;
 
 router.get("/maisModelos", async (_, res) => {
     const data = JSON.parse(await readFile(filename));
@@ -37,7 +37,7 @@ router.post("/listaModelos", async (req, res) => {
 
     let brand = req.body;
 
-    if (!brand){
+    if (!brand) {
         throw new Error("Informe a marca que deseja buscar");
     }
 
@@ -47,20 +47,20 @@ router.post("/listaModelos", async (req, res) => {
     res.send(models);
 });
 
-function modelsByBrand(data, brandSearch){
+function modelsByBrand(data, brandSearch) {
 
     const listModels = data.map(brand => {
         return {
             'brand': brand.brand,
             'models': brand.models
         }
-    }).filter( (item) => item.brand.toLowerCase() === brandSearch.toLowerCase());
+    }).filter((item) => item.brand.toLowerCase() === brandSearch.toLowerCase());
 
     return listModels.length > 0 ? listModels[0].models : [];
 }
 
 function brandTopBottom(data, asc) {
-   
+
     const listBrand = data.map(brand => {
         return {
             'brand': brand.brand,
@@ -69,8 +69,8 @@ function brandTopBottom(data, asc) {
     }).sort(function (a, b) {
         return a.models > b.models ? -1 : a.models < b.models ? 1 : 0
     });
-    
-    let index = (asc) ? 0 : listBrand.length-1;
+
+    let index = (asc) ? 0 : listBrand.length - 1;
 
     const result = listBrand.filter(brand => brand.models === listBrand[index].models);
     const brands = [];
@@ -78,34 +78,33 @@ function brandTopBottom(data, asc) {
     for (let i in result) {
         brands.push(result[i].brand);
     }
-    return (brands.length >1) ? brands : `"${brands[0]}"`;
-    
+    return (brands.length > 1) ? brands : `"${brands[0]}"`;
+
 }
 
-function brandTopList(data, top, asc){
+function brandTopList(data, top, asc) {
     const listBrand = data.map(brand => {
         return {
             'brand': brand.brand,
             'models': brand.models.length
         }
     }).sort((a, b) => a.models > b.models ? -1 : a.models < b.models ? 1 : a.brand > b.brand ? 1 : -1);
-    
+
     let brands = [];
-    if (asc){
+    if (asc) {
         brands = listBrand.slice(0, top);
     } else {
-        brands = listBrand.slice(-top).sort((a,b) => a.models > b.models ? 1: a.models < b.models ? -1 : a.brand > b.brand ? 1 : -1);
+        brands = listBrand.slice(-top).sort((a, b) => a.models > b.models ? 1 : a.models < b.models ? -1 : a.brand > b.brand ? 1 : -1);
     }
 
     return formatBrandReduced(brands);
 }
 
-function formatBrandReduced(data){
+function formatBrandReduced(data) {
 
     const brands = [];
 
-    for (let b in data)
-    {
+    for (let b in data) {
         brands.push(`${data[b].brand} - ${data[b].models}`)
     }
     return brands;
